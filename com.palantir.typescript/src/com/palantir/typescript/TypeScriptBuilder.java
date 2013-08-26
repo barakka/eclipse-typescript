@@ -126,7 +126,11 @@ public final class TypeScriptBuilder extends IncrementalProjectBuilder {
                         file.refreshLocal(IResource.DEPTH_ZERO, monitor);
 
                         if (file.exists()) {
-                            file.delete(false, monitor);
+                            try{
+                                file.delete(false, monitor);
+                            } catch(CoreException ex){
+                                // file might be in use, ignore.
+                            }
                         }
                     }
                 }
