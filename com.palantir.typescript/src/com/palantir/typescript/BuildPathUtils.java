@@ -113,7 +113,6 @@ public final class BuildPathUtils {
         return fileNames.build();
     }
 
-
     /**
      * Returns true if the given resource should be considered, based on the build path configured
      * for the given project.
@@ -189,7 +188,7 @@ public final class BuildPathUtils {
          *         for this build path
          */
         public boolean contains(final IResource resource) {
-            if (!this.sourceFolder.getRawLocation().isPrefixOf(resource.getRawLocation())){
+            if (!isInSourceFolder(resource)) {
                 return false;
             }
 
@@ -207,6 +206,13 @@ public final class BuildPathUtils {
             }
 
             return true;
+        }
+
+        private boolean isInSourceFolder(final IResource resource) {
+            IPath sourceFolderPath = this.sourceFolder.getRawLocation();
+            IPath resourcePath = resource.getRawLocation();
+
+            return resourcePath != null && (sourceFolderPath == null || sourceFolderPath.isPrefixOf(resourcePath));
         }
 
         private BuildPath(final IProject project, final IPreferenceStore preferenceStore) {
