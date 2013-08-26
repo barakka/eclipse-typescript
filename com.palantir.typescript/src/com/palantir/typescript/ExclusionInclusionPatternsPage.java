@@ -84,7 +84,7 @@ public final class ExclusionInclusionPatternsPage extends FieldEditorPreferenceP
     public void setElement(final IAdaptable element) {
         this.project = (IProject) element.getAdapter(IProject.class);
         if (this.project != null) {
-            this.projectPreferenceStore = BuildPathUtils.getBuildPathPreferenceStore(this.project);
+            this.projectPreferenceStore = PreferenceUtils.getPreferenceStore(this.project);
         } else {
             this.projectPreferenceStore = null;
         }

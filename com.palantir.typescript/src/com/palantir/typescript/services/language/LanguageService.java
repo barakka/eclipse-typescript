@@ -18,11 +18,13 @@ package com.palantir.typescript.services.language;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.palantir.typescript.PreferenceUtils.getProjectPreference;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -33,6 +35,7 @@ import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
 import com.palantir.typescript.BuildPathUtils;
@@ -54,20 +57,22 @@ public final class LanguageService {
 
     private final Bridge bridge;
     private final MyPropertyChangeListener preferencesListener;
+    private final IProject project;
 
     public LanguageService(String fileName) {
-        this(ImmutableList.of(fileName));
+        this(null, ImmutableList.of(fileName));
     }
 
     public LanguageService(IProject project) {
-        this(BuildPathUtils.getProjectFiles(project));
+        this(project, BuildPathUtils.getProjectFiles(project));
     }
 
-    private LanguageService(List<String> fileNames) {
+    private LanguageService(IProject project, List<String> fileNames) {
         checkNotNull(fileNames);
 
         this.bridge = new Bridge();
         this.preferencesListener = new MyPropertyChangeListener();
+        this.project = project;
 
         this.addDefaultLibrary();
         this.addFiles(fileNames);
@@ -150,15 +155,6 @@ public final class LanguageService {
         Request request = new Request(SERVICE, "getFormattingEditsForRange", fileName, minChar, limChar, options);
         CollectionType resultType = TypeFactory.defaultInstance().constructCollectionType(List.class, TextEdit.class);
         return this.bridge.call(request, resultType);
-    }
-
-    public int getIndentationAtPosition(String fileName, int offset, EditorOptions options) {
-        checkNotNull(fileName);
-        checkArgument(offset >= 0);
-        checkNotNull(options);
-
-        Request request = new Request(SERVICE, "getIndentationAtPosition", fileName, offset, options);
-        return this.bridge.call(request, Integer.class);
     }
 
     public SpanInfo getNameOrDottedNameSpan(String fileName, int startPos, int endPos) {
@@ -247,6 +243,7 @@ public final class LanguageService {
     }
 
 
+
     private void updateCompilationSettings() {
         IPreferenceStore preferenceStore = TypeScriptPlugin.getDefault().getPreferenceStore();
 
@@ -259,6 +256,18 @@ public final class LanguageService {
             .getString(IPreferenceConstants.COMPILER_MODULE_GEN_TARGET)));
         compilationSettings.setNoLib(preferenceStore.getBoolean(IPreferenceConstants.COMPILER_NO_LIB));
         compilationSettings.setRemoveComments(preferenceStore.getBoolean(IPreferenceConstants.COMPILER_REMOVE_COMMENTS));
+
+        // set the output directory if it was specified
+        if (this.project != null) {
+            String relativePath = getProjectPreference(this.project, IPreferenceConstants.COMPILER_OUTPUT_DIR_OPTION);
+
+            if (!Strings.isNullOrEmpty(relativePath)) {
+                IFolder sourceFolder = this.project.getFolder(relativePath);
+                String outDir = sourceFolder.getRawLocation().toOSString() + "/";
+
+                compilationSettings.setOutDirOption(outDir);
+            }
+        }
 
         Request request = new Request(SERVICE, "setCompilationSettings", compilationSettings);
         this.bridge.call(request, Void.class);

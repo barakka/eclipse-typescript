@@ -39,32 +39,25 @@ public final class ResourceDeltaVisitor implements IResourceDeltaVisitor {
     private static final int FLAGS = IResourceDelta.CONTENT | IResourceDelta.ENCODING;
 
     private final ImmutableList.Builder<FileDelta> deltas;
-    private final IProject project;
+
     private final BuildPathUtils.BuildPath buildPath;
 
     private ResourceDeltaVisitor(IProject project) {
         this.deltas = ImmutableList.builder();
-        this.project = project;
         this.buildPath = BuildPathUtils.getProjectBuildPath(project);
     }
 
     @Override
     public boolean visit(IResourceDelta delta) throws CoreException {
         IResource resource = delta.getResource();
-        IProject resourceProject = resource.getProject();
-
-        // skip other projects
-        if (this.project != null && resourceProject != null && !this.project.equals(resourceProject)) {
-            return false;
-        }
 
         // add the delta if its a TypeScript file
         if (BuildPathUtils.isResourceAccepted(resource, this.buildPath)) {
-            String fileName = resource.getRawLocation().toOSString();
             Delta deltaEnum = this.getDeltaEnum(delta);
 
             // check that the delta is a change that impacts the contents (or encoding) of the file
             if (deltaEnum != Delta.CHANGED || (delta.getFlags() & FLAGS) != 0) {
+                String fileName = resource.getRawLocation().toOSString();
                 FileDelta fileDelta = new FileDelta(deltaEnum, fileName);
 
                 this.deltas.add(fileDelta);
