@@ -46,6 +46,8 @@ public final class CompilerPreferencePage extends FieldEditorPreferencePage impl
     private ComboFieldEditor moduleGenTargetField;
     private BooleanFieldEditor removeCommentsField;
     private BooleanFieldEditor sourceMapField;
+    private BooleanFieldEditor cleanGeneratedOutput;
+    private BooleanFieldEditor markGeneratedOutputAsDerived;
 
     public CompilerPreferencePage() {
         super(FieldEditorPreferencePage.GRID);
@@ -102,7 +104,9 @@ public final class CompilerPreferencePage extends FieldEditorPreferencePage impl
         if (source.equals(this.compileOnSaveField)
                 || source.equals(this.moduleGenTargetField)
                 || source.equals(this.removeCommentsField)
-                || source.equals(this.sourceMapField)) {
+                || source.equals(this.sourceMapField)
+                || source.equals(this.cleanGeneratedOutput)
+                || source.equals(this.markGeneratedOutputAsDerived)) {
             this.compilerPreferencesModified = true;
         }
     }
@@ -144,6 +148,18 @@ public final class CompilerPreferencePage extends FieldEditorPreferencePage impl
             getResource("remove.comments"),
             this.getFieldEditorParent());
         this.addField(this.removeCommentsField);
+
+        this.cleanGeneratedOutput = new BooleanFieldEditor(
+            IPreferenceConstants.COMPILER_CLEAN_GENERATED_FILES,
+            getResource("clean.generated.files"),
+            this.getFieldEditorParent());
+        this.addField(this.cleanGeneratedOutput);
+
+        this.markGeneratedOutputAsDerived = new BooleanFieldEditor(
+            IPreferenceConstants.COMPILER_MARK_GENERATED_FILES_AS_DERIVED,
+            getResource("mark.generated.files.as.derived"),
+            this.getFieldEditorParent());
+        this.addField(this.markGeneratedOutputAsDerived);
     }
 
     @Override
@@ -181,6 +197,8 @@ public final class CompilerPreferencePage extends FieldEditorPreferencePage impl
 
         this.removeCommentsField.setEnabled(enabled, parent);
         this.sourceMapField.setEnabled(enabled, parent);
+        this.cleanGeneratedOutput.setEnabled(enabled, parent);
+        this.markGeneratedOutputAsDerived.setEnabled(enabled, parent);
     }
 
     private static String getResource(String key) {

@@ -20,7 +20,7 @@ import com.google.common.collect.ImmutableList;
 
 /**
  * The preference constants used for handling preferences.
- * 
+ *
  * @author tyleradams
  */
 public interface IPreferenceConstants {
@@ -36,6 +36,8 @@ public interface IPreferenceConstants {
     String COMPILER_REMOVE_COMMENTS = "compiler.removeComments";
     String COMPILER_EXCLUSION_PATTERNS = "compiler.exclusionPatterns";
     String COMPILER_INCLUSION_PATTERNS = "compiler.inclusionPatterns";
+    String COMPILER_CLEAN_GENERATED_FILES = "compiler.cleanGeneratedFiles";
+    String COMPILER_MARK_GENERATED_FILES_AS_DERIVED = "compiler.markGeneratedFilesAsDerived";
 
     ImmutableList<String> COMPILER_PREFERENCES = ImmutableList.of(
         COMPILER_CODE_GEN_TARGET,

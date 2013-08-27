@@ -112,7 +112,8 @@ public final class TypeScriptBuilder extends IncrementalProjectBuilder {
         // remove the built files if compile-on-save is enabled and an output directory is not specified
         IPreferenceStore preferenceStore = TypeScriptPlugin.getDefault().getPreferenceStore();
         if (preferenceStore.getBoolean(IPreferenceConstants.COMPILER_COMPILE_ON_SAVE)
-                && projectPreferences.get(IPreferenceConstants.COMPILER_OUTPUT_DIR_OPTION, null) != null) {
+                && projectPreferences.get(IPreferenceConstants.COMPILER_OUTPUT_DIR_OPTION, null) != null
+                && preferenceStore.getBoolean(IPreferenceConstants.COMPILER_CLEAN_GENERATED_FILES)) {
             for (FileDelta fileDelta : fileDeltas) {
                 String fileName = fileDelta.getFileName();
                 ImmutableList<String> builtFiles = getBuiltFiles(fileName);
@@ -165,6 +166,7 @@ public final class TypeScriptBuilder extends IncrementalProjectBuilder {
 
 
     private void compile(List<FileDelta> fileDeltas, IProgressMonitor monitor) throws CoreException {
+        boolean markAsDerived = TypeScriptPlugin.getDefault().getPreferenceStore().getBoolean(IPreferenceConstants.COMPILER_MARK_GENERATED_FILES_AS_DERIVED);
         for (FileDelta fileDelta : fileDeltas) {
             Delta delta = fileDelta.getDelta();
 
@@ -178,7 +180,7 @@ public final class TypeScriptBuilder extends IncrementalProjectBuilder {
 
                 // compile the file
                 try {
-                    compile(fileName, monitor);
+                    compile(fileName, monitor, markAsDerived);
                 } catch (RuntimeException e) {
                     String errorMessage = "Compilation of '" + fileName + "' failed.";
                     Status status = new Status(IStatus.ERROR, TypeScriptPlugin.ID, errorMessage, e);
@@ -189,7 +191,7 @@ public final class TypeScriptBuilder extends IncrementalProjectBuilder {
         }
     }
 
-    private void compile(String fileName, IProgressMonitor monitor) throws CoreException {
+    private void compile(String fileName, IProgressMonitor monitor, boolean markAsDerived) throws CoreException {
         LanguageService languageService = this.getLanguageService();
         for (String outputFileName : languageService.getEmitOutput(fileName)) {
             Path path = new Path(outputFileName);
@@ -198,6 +200,9 @@ public final class TypeScriptBuilder extends IncrementalProjectBuilder {
             // refresh the resource for the file if it is within the workspace
             if (file != null) {
                 file.refreshLocal(IResource.DEPTH_ZERO, monitor);
+                if (markAsDerived){
+                    file.setDerived(true, monitor);
+                }
             }
         }
     }
