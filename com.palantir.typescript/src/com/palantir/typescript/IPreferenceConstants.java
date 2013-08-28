@@ -34,8 +34,6 @@ public interface IPreferenceConstants {
     String COMPILER_NO_LIB = "compiler.noLib";
     String COMPILER_OUTPUT_DIR_OPTION = "compiler.optionDirOption";
     String COMPILER_REMOVE_COMMENTS = "compiler.removeComments";
-    String COMPILER_EXCLUSION_PATTERNS = "compiler.exclusionPatterns";
-    String COMPILER_INCLUSION_PATTERNS = "compiler.inclusionPatterns";
     String COMPILER_CLEAN_GENERATED_FILES = "compiler.cleanGeneratedFiles";
     String COMPILER_MARK_GENERATED_FILES_AS_DERIVED = "compiler.markGeneratedFilesAsDerived";
 

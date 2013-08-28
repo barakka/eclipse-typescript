@@ -87,7 +87,7 @@ public final class TypeScriptBuilder extends IncrementalProjectBuilder {
             this.cachedLanguageService = null;
         }
 
-        this.clean(BuildPathUtils.getAllSourceFilesDeltas(this.getProject()), monitor);
+        this.clean(getAllSourceFiles(), monitor);
     }
 
     private void build(List<FileDelta> fileDeltas, IProgressMonitor monitor) throws CoreException {
@@ -140,13 +140,13 @@ public final class TypeScriptBuilder extends IncrementalProjectBuilder {
     }
 
     private void fullBuild(IProgressMonitor monitor) throws CoreException {
-        this.build(BuildPathUtils.getAllSourceFilesDeltas(this.getProject()), monitor);
+        this.build(getAllSourceFiles(), monitor);
     }
 
     private void incrementalBuild(IProgressMonitor monitor) throws CoreException {
         IProject project = this.getProject();
         IResourceDelta delta = this.getDelta(project);
-        ImmutableList<FileDelta> fileDeltas = ResourceDeltaVisitor.getFileDeltas(delta, project);
+        ImmutableList<FileDelta> fileDeltas = EclipseResources.getTypeScriptFileDeltas(delta, project);
 
         if (!fileDeltas.isEmpty()) {
             this.getLanguageService().updateFiles(fileDeltas);
@@ -154,6 +154,17 @@ public final class TypeScriptBuilder extends IncrementalProjectBuilder {
             this.clean(fileDeltas, monitor);
             this.build(fileDeltas, monitor);
         }
+    }
+
+    private ImmutableList<FileDelta> getAllSourceFiles() {
+        ImmutableList<String> fileNames = EclipseResources.getTypeScriptFileNames(this.getProject());
+        ImmutableList.Builder<FileDelta> fileDeltas = ImmutableList.builder();
+
+        for (String fileName : fileNames) {
+            fileDeltas.add(new FileDelta(Delta.ADDED, fileName));
+        }
+
+        return fileDeltas.build();
     }
 
     private LanguageService getLanguageService() {

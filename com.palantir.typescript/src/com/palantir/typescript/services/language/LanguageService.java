@@ -18,7 +18,6 @@ package com.palantir.typescript.services.language;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.palantir.typescript.PreferenceUtils.getProjectPreference;
 
 import java.io.IOException;
 import java.util.List;
@@ -26,6 +25,9 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ProjectScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -38,7 +40,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
-import com.palantir.typescript.BuildPathUtils;
+import com.palantir.typescript.EclipseResources;
 import com.palantir.typescript.IPreferenceConstants;
 import com.palantir.typescript.TypeScriptPlugin;
 import com.palantir.typescript.services.Bridge;
@@ -64,7 +66,7 @@ public final class LanguageService {
     }
 
     public LanguageService(IProject project) {
-        this(project, BuildPathUtils.getProjectFiles(project));
+        this(project, EclipseResources.getTypeScriptFileNames(project));
     }
 
     private LanguageService(IProject project, List<String> fileNames) {
@@ -242,6 +244,12 @@ public final class LanguageService {
         this.bridge.call(request, Void.class);
     }
 
+    private static String getProjectPreference(IProject project, String key) {
+        IScopeContext projectScope = new ProjectScope(project);
+        IEclipsePreferences projectPreferences = projectScope.getNode(TypeScriptPlugin.ID);
+
+        return projectPreferences.get(key, "");
+    }
 
 
     private void updateCompilationSettings() {
@@ -262,8 +270,8 @@ public final class LanguageService {
             String relativePath = getProjectPreference(this.project, IPreferenceConstants.COMPILER_OUTPUT_DIR_OPTION);
 
             if (!Strings.isNullOrEmpty(relativePath)) {
-                IFolder sourceFolder = this.project.getFolder(relativePath);
-                String outDir = sourceFolder.getRawLocation().toOSString() + "/";
+                IFolder outputFolder = this.project.getFolder(relativePath);
+                String outDir = outputFolder.getRawLocation().toOSString() + "/";
 
                 compilationSettings.setOutDirOption(outDir);
             }

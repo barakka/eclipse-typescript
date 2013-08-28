@@ -79,7 +79,7 @@ public final class CompilerPreferencePage extends FieldEditorPreferencePage impl
 
                 // rebuild the workspace
                 if (result == 2) {
-                    BuildUtils.rebuildWorkspace();
+                    Builders.rebuildWorkspace();
                 }
             }
 
