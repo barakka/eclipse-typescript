@@ -59,12 +59,12 @@ public final class AutoEditStrategy implements IAutoEditStrategy {
                 int lineOffset = document.getLineOffset(line);
                 int lineLength = document.getLineLength(line);
                 String lineDelimiter = document.getLineDelimiter(line);
-                int endOfLineOffset = lineOffset + lineLength - lineDelimiter.length();
+                int endOfLineOffset = lineOffset + lineLength - (lineDelimiter != null ? lineDelimiter.length() : 0);
 
                 // add additional whitespace to maintain the proper indentation
                 String fileName = this.editor.getFileName();
                 EditorOptions options = createEditorOptions();
-                int indentation = this.editor.getLanguageService().getIndentationAtPosition(fileName, endOfLineOffset, options);
+                int indentation = this.editor.getLanguageService().getIndentationAtPosition(fileName, offset, options);
                 IPreferenceStore preferenceStore = TypeScriptPlugin.getDefault().getPreferenceStore();
                 boolean spacesForTabs = preferenceStore.getBoolean(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SPACES_FOR_TABS);
                 command.text += Strings.repeat(spacesForTabs ? " " : "\t", indentation);
