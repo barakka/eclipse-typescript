@@ -39,7 +39,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.palantir.typescript.services.language.Diagnostic;
+import com.palantir.typescript.services.language.CompleteDiagnostic;
 import com.palantir.typescript.services.language.FileDelta;
 import com.palantir.typescript.services.language.FileDelta.Delta;
 import com.palantir.typescript.services.language.LanguageService;
@@ -184,7 +184,7 @@ public final class TypeScriptBuilder extends IncrementalProjectBuilder {
         // fix is: https://typescript.codeplex.com/SourceControl/changeset/8b1915815ce48b5c17772de750a02a38bb309044
         LanguageService languageService = new LanguageService(this.getProject());
         try {
-            final Map<String, List<Diagnostic>> diagnostics = languageService.getAllDiagnostics();
+            final Map<String, List<CompleteDiagnostic>> diagnostics = languageService.getAllDiagnostics();
 
             // create the markers within a workspace runnable for greater efficiency
             IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
@@ -199,8 +199,8 @@ public final class TypeScriptBuilder extends IncrementalProjectBuilder {
         }
     }
 
-    private static void createMarkers(final Map<String, List<Diagnostic>> diagnostics) throws CoreException {
-        for (Map.Entry<String, List<Diagnostic>> entry : diagnostics.entrySet()) {
+    private static void createMarkers(final Map<String, List<CompleteDiagnostic>> diagnostics) throws CoreException {
+        for (Map.Entry<String, List<CompleteDiagnostic>> entry : diagnostics.entrySet()) {
             String fileName = entry.getKey();
 
             // ignore the default library
@@ -211,8 +211,8 @@ public final class TypeScriptBuilder extends IncrementalProjectBuilder {
             // create the markers for this file
             Path path = new Path(fileName);
             IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);
-            List<Diagnostic> fileDiagnostics = entry.getValue();
-            for (Diagnostic diagnostic : fileDiagnostics) {
+            List<CompleteDiagnostic> fileDiagnostics = entry.getValue();
+            for (CompleteDiagnostic diagnostic : fileDiagnostics) {
                 IMarker marker = file.createMarker(MARKER_TYPE);
                 Map<String, Object> attributes = createMarkerAttributes(diagnostic);
 
@@ -221,7 +221,7 @@ public final class TypeScriptBuilder extends IncrementalProjectBuilder {
         }
     }
 
-    private static Map<String, Object> createMarkerAttributes(Diagnostic diagnostic) {
+    private static Map<String, Object> createMarkerAttributes(CompleteDiagnostic diagnostic) {
         ImmutableMap.Builder<String, Object> attributes = ImmutableMap.builder();
 
         attributes.put(IMarker.CHAR_START, diagnostic.getStart());
