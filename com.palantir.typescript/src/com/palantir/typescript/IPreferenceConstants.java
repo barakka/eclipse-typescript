@@ -34,6 +34,7 @@ public interface IPreferenceConstants {
     String COMPILER_NO_LIB = "compiler.noLib";
     String COMPILER_OUTPUT_DIR_OPTION = "compiler.optionDirOption";
     String COMPILER_REMOVE_COMMENTS = "compiler.removeComments";
+
     String COMPILER_MARK_GENERATED_FILES_AS_DERIVED = "compiler.markGeneratedFilesAsDerived";
 
     ImmutableList<String> COMPILER_PREFERENCES = ImmutableList.of(
@@ -59,4 +60,6 @@ public interface IPreferenceConstants {
     String FORMATTER_INSERT_SPACE_BEFORE_AND_AFTER_BINARY_OPERATORS = "formatter.insertSpaceBeforeAndAfterBinaryOperators";
     String FORMATTER_PLACE_OPEN_BRACE_ON_NEW_LINE_FOR_CONTROL_BLOCKS = "formatter.placeOpenBraceOnNewLineForControlBlocks";
     String FORMATTER_PLACE_OPEN_BRACE_ON_NEW_LINE_FOR_FUNCTIONS = "formatter.placeOpenBraceOnNewLineForFunctions";
+
+    String GENERAL_NODE_PATH = "general.nodePath";
 }
